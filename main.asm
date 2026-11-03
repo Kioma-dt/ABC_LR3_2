@@ -1,5 +1,3 @@
-; ЛР 3. Три задачи в 32-разрядном защищённом режиме.
-; NASM -> MAIN.COM. Запуск из реального режима DOS / FreeDOS.
 cpu 386
 bits 16
 org 0x100
@@ -11,7 +9,7 @@ SEL_TSS2 equ 0x20
 SEL_TSS3 equ 0x28
 SEL_FLAT equ 0x30
 VIDEO    equ 0xB8000
-DELAY    equ 3000000             ; Только замедление вывода, не таймер.
+DELAY    equ 3000000            
 
 start:
     cli
@@ -89,7 +87,6 @@ bits 32
 pm_entry:
     mov ax, SEL_DATA
     mov ds, ax
-    mov es, ax
     mov fs, ax
     mov ss, ax
     mov ax, SEL_FLAT
