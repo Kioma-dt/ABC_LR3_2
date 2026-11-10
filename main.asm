@@ -123,12 +123,6 @@ pm_entry:
     mov esi, task3_msg
     mov edi, VIDEO+160*7
     call print_string
-    mov esi, order_msg
-    mov edi, VIDEO+160*10
-    call print_string
-    mov esi, note_msg
-    mov edi, VIDEO+160*12
-    call print_string
 
     mov ax, SEL_TSS1
     ltr ax                     ; Назначить TSS текущему контексту.
@@ -205,12 +199,10 @@ exception_stop:
     jmp .halt                  ; Не возвращаемся; код ошибки удалять не нужно.
 
 hex_digits db '0123456789ABCDEF'
-title_msg db 'PROTECTED MODE: 3 hardware TSS tasks',0
+title_msg db 'PROTECTED MODE: 3 TSS tasks',0
 task1_msg db 'Task 1  step +1   count: 00000000',0
 task2_msg db 'Task 2  step +2   count: 00000000',0
 task3_msg db 'Task 3  step +3   count: 00000000',0
-order_msg db 'Switch order: Task 1 -> Task 2 -> Task 3 -> Task 1',0
-note_msg db 'Counters are hexadecimal. Close QEMU to stop.',0
 error_msg db 'CPU EXCEPTION: execution stopped',0
 
 ; У JMP FAR на TSS смещение игнорируется, важен селектор дескриптора.
