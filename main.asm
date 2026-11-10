@@ -41,9 +41,9 @@ start:
     mov eax, gdt
     add eax, ebx
     mov [gdtr+2], eax
-    mov eax, idt
-    add eax, ebx
-    mov [idtr+2], eax
+    ; mov eax, idt
+    ; add eax, ebx
+    ; mov [idtr+2], eax
 
     ; У дескриптора база разнесена по трём полям.
     mov eax, tss1
@@ -97,19 +97,19 @@ pm_entry:
 
     ; IDT: одинаковый аварийный обработчик для исключений 0..31.
     ; IRQ запрещены (IF=0); таймер и клавиатура не используются.
-    mov edi, idt
-    mov eax, exception_stop
-    mov ecx, 32
-.idt_loop:
-    mov [edi], ax
-    mov word [edi+2], SEL_CODE
-    mov word [edi+4], 0x8E00    ; Present, DPL=0, 32-bit interrupt gate.
-    mov edx, eax
-    shr edx, 16
-    mov [edi+6], dx
-    add edi, 8
-    loop .idt_loop
-    lidt [idtr]
+;     mov edi, idt
+;     mov eax, exception_stop
+;     mov ecx, 32
+; .idt_loop:
+;     mov [edi], ax
+;     mov word [edi+2], SEL_CODE
+;     mov word [edi+4], 0x8E00    ; Present, DPL=0, 32-bit interrupt gate.
+;     mov edx, eax
+;     shr edx, 16
+;     mov [edi+6], dx
+;     add edi, 8
+;     loop .idt_loop
+;     lidt [idtr]
 
     mov esi, title_msg
     mov edi, VIDEO
@@ -255,11 +255,11 @@ tss1: TASK_TSS task1, stack1_top
 tss2: TASK_TSS task2, stack2_top
 tss3: TASK_TSS task3, stack3_top
 
-align 8, db 0
-idt: times 32*8 db 0
-idtr:
-    dw 32*8-1
-    dd idt
+; align 8, db 0
+; idt: times 32*8 db 0
+; idtr:
+;     dw 32*8-1
+;     dd idt
 
 ; Три отдельных стека по 512 байт, растут к меньшим адресам.
 align 16, db 0
