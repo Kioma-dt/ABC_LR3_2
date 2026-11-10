@@ -34,30 +34,27 @@ start:
     shl ebx, 4
     mov eax, ebx
     mov di, gdt+8
-    call set_tss_base
+    call set_base
     mov eax, ebx
     mov di, gdt+16
-    call set_tss_base
+    call set_base
     mov eax, gdt
     add eax, ebx
     mov [gdtr+2], eax
-    ; mov eax, idt
-    ; add eax, ebx
-    ; mov [idtr+2], eax
 
     ; У дескриптора база разнесена по трём полям.
     mov eax, tss1
     add eax, ebx
     mov di, gdt_tss1
-    call set_tss_base
+    call set_base
     mov eax, tss2
     add eax, ebx
     mov di, gdt_tss2
-    call set_tss_base
+    call set_base
     mov eax, tss3
     add eax, ebx
     mov di, gdt_tss3
-    call set_tss_base
+    call set_base
 
     mov al, 0x80               ; Отключить NMI на время демонстрации.
     out 0x70, al
@@ -76,7 +73,7 @@ dos_error:
     int 0x21
 dos_error_msg db "Run in real-mode DOS without EMM386.",13,10,"$"
 
-set_tss_base:                  ; EAX = адрес TSS, DI = дескриптор.
+set_base:                  ; EAX = адрес TSS, DI = дескриптор.
     mov [di+2], ax
     shr eax, 16
     mov [di+4], al
@@ -94,22 +91,6 @@ pm_entry:
     mov gs, ax
     mov esp, stack1_top
     cld
-
-    ; IDT: одинаковый аварийный обработчик для исключений 0..31.
-    ; IRQ запрещены (IF=0); таймер и клавиатура не используются.
-;     mov edi, idt
-;     mov eax, exception_stop
-;     mov ecx, 32
-; .idt_loop:
-;     mov [edi], ax
-;     mov word [edi+2], SEL_CODE
-;     mov word [edi+4], 0x8E00    ; Present, DPL=0, 32-bit interrupt gate.
-;     mov edx, eax
-;     shr edx, 16
-;     mov [edi+6], dx
-;     add edi, 8
-;     loop .idt_loop
-;     lidt [idtr]
 
     mov esi, title_msg
     mov edi, VIDEO
@@ -188,12 +169,6 @@ print_string:
 .done:
     ret
 
-exception_stop:
-    cli
-    cld
-    mov esi, error_msg
-    mov edi, VIDEO+160*15
-    call print_string
 .halt:
     hlt
     jmp .halt                  ; Не возвращаемся; код ошибки удалять не нужно.
@@ -207,11 +182,11 @@ error_msg db 'CPU EXCEPTION: execution stopped',0
 
 ; У JMP FAR на TSS смещение игнорируется, важен селектор дескриптора.
 next1 dd 0
-      dw SEL_TSS1
+    dw SEL_TSS1
 next2 dd 0
-      dw SEL_TSS2
+    dw SEL_TSS2
 next3 dd 0
-      dw SEL_TSS3
+    dw SEL_TSS3
 
 align 8, db 0
 gdt:
@@ -254,12 +229,6 @@ align 4, db 0
 tss1: TASK_TSS task1, stack1_top
 tss2: TASK_TSS task2, stack2_top
 tss3: TASK_TSS task3, stack3_top
-
-; align 8, db 0
-; idt: times 32*8 db 0
-; idtr:
-;     dw 32*8-1
-;     dd idt
 
 ; Три отдельных стека по 512 байт, растут к меньшим адресам.
 align 16, db 0
